@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Schedule Consultation | HomeHealth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-sans min-h-screen">
+
+    <div class="max-w-5xl mx-auto px-4 py-12">
+        
+        <div class="mb-10 text-center">
+            <h1 class="text-3xl font-black text-slate-900 uppercase tracking-tight">Schedule a Consultation</h1>
+            <p class="text-slate-500 mt-2">Connect with our specialized medical team for a comprehensive review.</p>
+        </div>
+
+        <form action="{{ url_for('book_appointment', patient_id=patient_id) }}" method="POST">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-sm font-bold text-indigo-600 uppercase tracking-widest mb-4">1. Select Consultation Type</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <label class="relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm focus:outline-none hover:border-indigo-500 transition">
+                                <input type="radio" name="consultation_type" value="general" class="sr-only peer" checked>
+                                <span class="flex flex-1">
+                                    <span class="flex flex-col">
+                                        <span class="block text-sm font-bold text-slate-900">General Review</span>
+                                        <span class="mt-1 flex items-center text-xs text-slate-500 italic">Duration: 30 mins</span>
+                                    </span>
+                                </span>
+                                <div class="peer-checked:text-indigo-600 text-transparent">
+                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                                </div>
+                                <span class="pointer-events-none absolute -inset-px rounded-xl border-2 peer-checked:border-indigo-600" aria-hidden="true"></span>
+                            </label>
+
+                            <label class="relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm focus:outline-none hover:border-indigo-500 transition">
+                                <input type="radio" name="consultation_type" value="specialist" class="sr-only peer">
+                                <span class="flex flex-1">
+                                    <span class="flex flex-col">
+                                        <span class="block text-sm font-bold text-slate-900">Specialist Consult</span>
+                                        <span class="mt-1 flex items-center text-xs text-slate-500 italic">Duration: 60 mins</span>
+                                    </span>
+                                </span>
+                                <div class="peer-checked:text-indigo-600 text-transparent">
+                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                                </div>
+                                <span class="pointer-events-none absolute -inset-px rounded-xl border-2 peer-checked:border-indigo-600" aria-hidden="true"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-sm font-bold text-indigo-600 uppercase tracking-widest mb-4">2. Pick a Provider & Schedule</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-2">Physician</label>
+                                <select name="doctor_id" required class="w-full rounded-lg border-slate-200 bg-slate-50 text-sm p-3 border focus:ring-2 focus:ring-indigo-500">
+                                    {% for doctor in doctors %}
+                                    <option value="{{ doctor.user_id }}">Dr. {{ doctor.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-2">Appointment Date/Time</label>
+                                <input type="datetime-local" name="appt_time" required class="w-full rounded-lg border-slate-200 bg-slate-50 text-sm p-3 border focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-indigo-900 rounded-2xl p-6 text-white shadow-xl">
+                        <h4 class="font-bold mb-2">Consultation Prep</h4>
+                        <ul class="text-xs text-indigo-200 space-y-3">
+                            <li class="flex items-start">
+                                <span class="mr-2">•</span> Have your latest glucose readings ready.
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2">•</span> Ensure your BP monitor is calibrated.
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2">•</span> Be ready 5 minutes before start.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button type="submit" class="w-full py-4 bg-indigo-600 text-white font-black uppercase tracking-widest rounded-xl shadow-lg hover:bg-indigo-700 transition-all active:scale-95">
+                        Confirm Schedule
+                    </button>
+
+                    <a href="{{ url_for('patient_appointments', patient_id=patient_id) }}" class="block text-center text-sm font-bold text-slate-400 hover:text-indigo-600 transition">
+                        Cancel & View Appointments
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

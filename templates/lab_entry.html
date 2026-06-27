@@ -1,0 +1,19 @@
+<body class="bg-slate-50 p-10">
+    <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border">
+        <div class="bg-amber-600 p-6 text-white">
+            <h1 class="text-xl font-bold">Laboratory Information System</h1>
+            <p>Entering data for: {{ patient.name }}</p>
+        </div>
+        <form action="{{ url_for('lab_entry', patient_id=patient.patient_id) }}" method="POST" class="p-8">
+            <label class="block text-sm font-bold text-gray-700 mb-4">Laboratory Findings (Bloodwork, Imaging, etc.)</label>
+            <textarea name="lab_results" rows="8" class="w-full border rounded-xl p-4 bg-slate-50 mb-6 focus:ring-2 focus:ring-amber-500 outline-none" placeholder="e.g. WBC: 11.0, Hb: 14.2, Chest X-Ray: Normal..."></textarea>
+            
+            <div class="flex justify-between items-center">
+                <a href="{{ url_for('manage_patients') }}" class="text-gray-400 hover:text-gray-600">Cancel</a>
+                <button type="submit" class="bg-amber-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:bg-amber-700 transition">
+                    Submit Results to Doctor
+                </button>
+            </div>
+        </form>
+    </div>
+</body>

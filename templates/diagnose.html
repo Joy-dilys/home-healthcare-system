@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <header class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-800">Clinical Diagnosis: Patient ID {{ patient_id }}</h1>
+        <a href="{{ url_for('staff_dashboard') }}" class="text-blue-600 hover:underline">← Back to Dashboard</a>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow border border-gray-100">
+                <h3 class="font-bold text-gray-700 mb-4">Live Health Trends</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div style="height: 200px;"><canvas id="hrChart"></canvas></div>
+                    <div style="height: 200px;"><canvas id="glucoseChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow border border-blue-200">
+            <h3 class="font-bold text-blue-800 mb-4">Medical Decision</h3>
+            <form action="{{ url_for('diagnose_patient', patient_id=patient_id) }}" method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600">Analysis Notes</label>
+                    <textarea name="notes" rows="5" required placeholder="Describe the patient's condition..."
+                              class="w-full mt-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600">Decision/Action</label>
+                    <select name="decision" class="w-full mt-1 p-2.5 border rounded-lg bg-white">
+                        <option value="Stable">Stable - Continue Monitoring</option>
+                        <option value="Prescription">Issue New Prescription</option>
+                        <option value="Urgent">Urgent Follow-up Required</option>
+                        <option value="Emergency">Emergency Hospitalization</option>
+                    </select>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 shadow-md">
+                    Submit Final Diagnosis
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // These must match the names in render_template(...)
+    window.healthData = {{ health_data | tojson | safe }};
+    window.thresholds = {{ thresholds | tojson | safe }};
+</script>
+<script src="{{ url_for('static', filename='js/patient_charts.js') }}"></script>
+{% endblock %}

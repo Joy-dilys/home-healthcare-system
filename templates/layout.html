@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HealthPortal{% endblock %}</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+    <nav class="bg-indigo-700 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-heartbeat text-2xl text-red-400"></i>
+                    <span class="font-bold text-xl tracking-tight">HealthPortal</span>
+                </div>
+
+                <div class="hidden md:flex space-x-8">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.role in ['Admin', 'Staff'] %}
+                            <a href="{{ url_for('staff_dashboard') }}" class="hover:bg-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Staff Dashboard</a>
+                            <a href="{{ url_for('register_staff') }}" class="hover:bg-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Add Staff</a>
+                        {% else %}
+                            <a href="{{ url_for('patient_dashboard', patient_id=current_user.id) }}" class="hover:bg-indigo-600 px-3 py-2 rounded-md text-sm font-medium">My Vitals</a>
+                            <a href="{{ url_for('patient_appointments', patient_id=current_user.id) }}" class="hover:bg-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Appointments</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm font-semibold">
+                            {{ current_user.username if current_user.is_authenticated else 'Guest' }}
+                        </p>
+                        <p class="text-[10px] uppercase tracking-widest text-indigo-200">
+                            {{ current_user.role if current_user.is_authenticated else '' }}
+                        </p>
+                    </div>
+                  {% if current_user.is_authenticated %}
+    <a href="{{ url_for('logout') }}" 
+       class="hover:text-red-300 transition" title="Logout">
+        <i class="fas fa-sign-out-alt text-lg"></i>
+    </a>
+{% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto py-10 px-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="mb-4 p-4 rounded-lg {% if category == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>

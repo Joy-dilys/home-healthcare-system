@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Onboarding | MedCare</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 font-sans min-h-screen pb-12">
+
+    <div class="max-w-4xl mx-auto px-4 pt-8">
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-900">Register Patient</h1>
+            </div>
+            <i class="fas fa-file-medical text-4xl text-indigo-600 opacity-20"></i>
+        </div>
+
+        <form action="{{ url_for('patient_register') }}" method="POST" class="space-y-8">
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-6 py-3 border-b border-slate-200">
+                    <h2 class="text-sm font-bold text-indigo-700 uppercase tracking-wider">Personal Details</h2>
+                </div>
+                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="col-span-2 md:col-span-1">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Full Name</label>
+                        <input type="text" name="name" required placeholder="John Doe" 
+                               class="w-full rounded-lg border-slate-300 bg-slate-50 p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none border transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Primary Contact (Phone)</label>
+                        <input type="text" name="contact_info" required placeholder="+254 700 000 000" 
+                               class="w-full rounded-lg border-slate-300 bg-slate-50 p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none border">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Date of Birth</label>
+                        <input type="date" name="dob" required 
+                               class="w-full rounded-lg border-slate-300 bg-slate-50 p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none border">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Gender</label>
+                        <select name="gender" class="w-full rounded-lg border-slate-300 bg-slate-50 p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none border">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other/Non-binary</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-6 py-3 border-b border-slate-200">
+                    <h2 class="text-sm font-bold text-indigo-700 uppercase tracking-wider">Vitals</h2>
+                </div>
+                <div class="p-6">
+                    <p class="text-xs text-slate-400 mb-6 italic">Set the min/max values that will trigger system alerts for this specific patient.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Heart Rate (Min/Max)</label>
+                            <div class="flex space-x-2">
+                                <input type="number" name="heart_rate_min" placeholder="Min" class="w-1/2 rounded-lg border-slate-300 bg-slate-50 p-2 border">
+                                <input type="number" name="heart_rate_max" placeholder="Max" class="w-1/2 rounded-lg border-slate-300 bg-slate-50 p-2 border">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">BP Systolic Max</label>
+                            <input type="number" name="bp_sys_max" placeholder="e.g. 140" class="w-full rounded-lg border-slate-300 bg-slate-50 p-2.5 border">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Glucose Max (mg/dL)</label>
+                            <input type="number" name="glucose_max" placeholder="e.g. 180" class="w-full rounded-lg border-slate-300 bg-slate-50 p-2.5 border">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-6 py-3 border-b border-slate-200">
+        
+                </div>
+                <div class="p-6">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Existing Conditions</label>
+                    <textarea name="medical_history" rows="3" placeholder="List hypertension, diabetes, asthma, etc." 
+                              class="w-full rounded-lg border-slate-300 bg-slate-50 p-3 focus:ring-2 focus:ring-indigo-500 outline-none border mb-4"></textarea>
+                    
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" name="lifeline_consent" required class="h-4 w-4 text-indigo-600 rounded">
+                        <label class="text-xs text-slate-600">Patient consents to 24/7 remote monitoring and emergency data collection.</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-4 pt-4">
+                <a href="{{ url_for('manage_patients') }}" class="text-sm font-bold text-slate-400 hover:text-slate-600 transition">Discard Changes</a>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-10 rounded-xl shadow-lg shadow-indigo-200 transition-all transform active:scale-95">
+                    Finalize Onboarding
+                </button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

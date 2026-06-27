@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clinical Analysis | HomeHealth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <div class="max-w-4xl mx-auto py-12 px-4">
+        <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-200">
+            <div class="bg-indigo-700 px-8 py-6">
+                <h1 class="text-2xl font-bold text-white">Medical Analysis Report</h1>
+                <p class="text-indigo-100 text-sm">Patient: {{ patient.name }} (ID: {{ patient.patient_id }})</p>
+            </div>
+
+            <form action="{{ url_for('doctor_analysis_page', patient_id=patient.patient_id) }}" method="POST" class="p-8 space-y-8">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">1. Symptom Assessment</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {% for sym in ['Fever', 'Chest Pain', 'Shortness of Breath', 'Nausea', 'Fatigue', 'Dizziness'] %}
+                        <label class="flex items-center p-3 border rounded-lg hover:bg-slate-50 cursor-pointer">
+                            <input type="checkbox" name="symptoms" value="{{ sym }}" class="h-4 w-4 text-indigo-600 rounded">
+                            <span class="ml-3 text-sm text-gray-700">{{ sym }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">2. Clinical Interpretation</h3>
+                    <textarea name="test_interpretation" rows="3" placeholder="Enter interpretation of recent lab results or vitals trends..." 
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-4 border"></textarea>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">3. Preliminary Treatment Plan</h3>
+                    <textarea name="treatment_plan" rows="4" placeholder="Outline medication, dosage, and recommended home care..." 
+                        class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-4 border"></textarea>
+                </div>
+
+                <div class="flex justify-between items-center pt-6">
+                    <a href="{{ url_for('manage_patients') }}" class="text-sm font-medium text-gray-500 hover:text-gray-700">← Cancel and Return</a>
+                    <button type="submit" class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 transition-all">
+                        Finalize Analysis
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

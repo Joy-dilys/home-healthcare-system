@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCare Staff Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 flex h-screen overflow-hidden font-sans">
+
+    <div id="success-toast" class="fixed top-6 right-6 transform translate-x-[150%] transition-transform duration-500 ease-in-out z-50">
+        <div class="bg-emerald-600 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-4 border border-emerald-400">
+            <div class="bg-emerald-500 rounded-full p-2">
+                <i class="fas fa-check text-white"></i>
+            </div>
+            <div>
+                <p class="font-bold text-sm">System Update</p>
+                <p class="text-xs opacity-90">Patient record saved and database updated.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="w-64 bg-indigo-900 text-white flex flex-col shadow-xl">
+        <div class="p-6 text-center border-b border-indigo-800 mb-4">
+            <h1 class="text-2xl font-black tracking-widest uppercase text-indigo-100">MedCare</h1>
+        </div>
+
+        <div class="px-4 mb-4">
+            <div class="relative group">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                    <i class="fas fa-search text-indigo-400 group-focus-within:text-white transition-colors"></i>
+                </span>
+                <input type="text" id="patientSearch" 
+                       class="w-full bg-indigo-950 border border-indigo-800 text-white text-xs rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-indigo-400/50" 
+                       placeholder="Filter patients...">
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto text-sm">
+            <a href="{{ url_for('manage_patients') }}" target="main-content-frame" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition duration-200 group">
+                <i class="fas fa-chart-line w-6 text-indigo-300 group-hover:text-white"></i>
+                <span class="ml-3 font-medium">Main Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('patient_register') }}" target="main-content-frame" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition duration-200 group">
+                <i class="fas fa-user-plus w-6 text-indigo-300 group-hover:text-white"></i>
+                <span class="ml-3 font-medium">Patient Onboarding</span>
+            </a>
+
+            <a href="{{ url_for('manage_patients') }}" target="main-content-frame" class="flex items-center p-3 rounded-lg bg-indigo-800 border-l-4 border-white shadow-inner">
+                <i class="fas fa-users w-6 text-white"></i>
+                <span class="ml-3 font-medium text-white">Patient Management</span>
+            </a>
+
+            <div class="pt-6 pb-2 text-xs font-semibold text-indigo-400 uppercase tracking-wider px-3">Clinical Tasks</div>
+
+            <a href="{{ url_for('manage_appointments') }}" target="main-content-frame" class="flex items-center justify-between p-3 rounded-lg hover:bg-indigo-800 transition duration-200 group">
+                <div class="flex items-center">
+                    <i class="fas fa-calendar-check w-6 text-indigo-300 group-hover:text-white"></i>
+                    <span class="ml-3 font-medium">Appointment Inbox</span>
+                </div>
+                {% if pending_count and pending_count > 0 %}
+                <span class="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
+                    {{ pending_count }}
+                </span>
+                {% endif %}
+            </a>
+
+            <a href="{{ url_for('manage_appointments') }}" target="main-content-frame" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition duration-200 group">
+                <i class="fas fa-video w-6 text-rose-400 group-hover:text-white"></i>
+                <span class="ml-3 font-medium text-rose-100">Live Consultation</span>
+            </a>
+    
+            <a href="{{ url_for('clinical_reports') }}" target="main-content-frame" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition duration-200 group">
+                <i class="fas fa-file-medical-alt w-6 text-emerald-400"></i>
+                <span class="ml-3 font-medium">Clinical Reports</span>
+            </a>
+
+            <a href="{{ url_for('lab_dashboard') }}" target="main-content-frame" 
+               class="flex items-center justify-between p-3 rounded-lg hover:bg-indigo-800 transition duration-200 group">
+                <div class="flex items-center">
+                    <i class="fas fa-microscope w-6 text-amber-400 group-hover:text-white"></i>
+                    <span class="ml-3 font-medium">Lab Queue</span>
+                </div>
+                {% if patients_count|default(0) > 0 %}
+                <span class="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">
+                    {{ patients_count }}
+                </span>
+                {% endif %}
+            </a>
+
+            <a href="{{ url_for('billing_receipts') }}" target="main-content-frame" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition duration-200 group">
+                <i class="fas fa-file-invoice-dollar w-6 text-amber-400"></i>
+                <span class="ml-3 font-medium">Billing & Receipts</span>
+            </a>
+        </nav>
+
+        <div class="p-4 bg-indigo-950 mt-auto">
+            <div class="flex items-center mb-4 px-2">
+                <div class="w-10 h-10 rounded-full bg-indigo-500 border-2 border-indigo-400 flex items-center justify-center text-sm font-bold shadow-inner">
+                    {{ current_user.username[:2].upper() }}
+                </div>
+                <div class="ml-3 overflow-hidden">
+                    <p class="text-sm font-bold truncate">Dr. {{ current_user.username }}</p>
+                    <p class="text-xs text-indigo-400">Medical Staff</p>
+                </div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="flex items-center justify-center p-2.5 text-sm text-indigo-200 hover:text-white hover:bg-red-600 rounded-lg transition-all duration-300">
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                <span>Secure Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header class="bg-white shadow-sm border-b border-gray-200 z-10 py-4 px-8 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest">Live Clinical Environment</h2>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="text-right">
+                    <p id="clock" class="text-sm font-bold text-gray-800 font-mono"></p>
+                    <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">System Health: Optimal</p>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 relative z-0 overflow-hidden">
+            <iframe 
+                name="main-content-frame" 
+                id="mainFrame"
+                src="{{ url_for('manage_patients') }}" 
+                class="w-full h-full border-none bg-gray-50">
+            </iframe>
+        </main>
+    </div>
+
+    <script>
+        // Real-time Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        const iframe = document.getElementById('mainFrame');
+        const toast = document.getElementById('success-toast');
+
+        // Toast trigger
+        function triggerToast() {
+            toast.classList.remove('translate-x-[150%]');
+            setTimeout(() => { toast.classList.add('translate-x-[150%]'); }, 4500);
+        }
+
+        // Notification detection
+        iframe.addEventListener('load', function() {
+            try {
+                const currentPath = iframe.contentWindow.location.href;
+                if (currentPath.includes('registered=true')) {
+                    triggerToast();
+                    // Clean parent URL to stop repeat triggers
+                    window.history.replaceState({}, '', window.location.href.split('?')[0]);
+                }
+            } catch (e) {
+                console.warn("Iframe domain mismatch prevents script access.");
+            }
+        });
+
+        // Robust Search (Handles cross-domain safety)
+        document.getElementById('patientSearch').addEventListener('keyup', function(e) {
+            const term = e.target.value.toLowerCase();
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                const tableRows = iframeDoc.querySelectorAll('tbody tr');
+
+                tableRows.forEach(row => {
+                    // Looks at all columns to find the name or ID
+                    const rowText = row.textContent.toLowerCase();
+                    row.style.display = rowText.includes(term) ? "" : "none";
+                });
+            } catch (err) {
+                console.error("Search failed: Ensure both main page and iframe use same protocol/port.");
+            }
+        });
+    </script>
+</body>
+</html>

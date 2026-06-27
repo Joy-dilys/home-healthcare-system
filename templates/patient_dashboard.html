@@ -1,0 +1,218 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<div id="alert-container" class="mb-6"></div>
+
+<header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800">Health Overview</h1>
+        <p class="text-sm text-gray-500">Patient ID: {{ patient_id }}</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+        <a href="{{ url_for('logout') }}" 
+           class="bg-white text-red-600 border border-red-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-50 transition shadow-sm flex items-center">
+            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+        </a>
+
+        <button onclick="document.getElementById('booking-section').scrollIntoView({behavior: 'smooth'})" 
+                class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-700 transition shadow-md flex items-center">
+            <i class="fas fa-calendar-plus mr-2"></i> Book Appointment
+        </button>
+    </div>
+</header>
+
+<div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 mb-8">
+    <div class="flex items-center mb-4 text-gray-800">
+        <i class="fas fa-notes-medical mr-2 text-indigo-500"></i>
+        <h3 class="text-lg font-bold">Log New Vitals</h3>
+    </div>
+    <form action="{{ url_for('add_vitals') }}" method="POST" class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="flex flex-col">
+            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Heart Rate</label>
+            <input type="number" name="heart_rate" placeholder="BPM" class="border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required>
+        </div>
+        <div class="flex flex-col">
+            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Systolic</label>
+            <input type="number" name="bp_sys" placeholder="mmHg" class="border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required>
+        </div>
+        <div class="flex flex-col">
+            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Diastolic</label>
+            <input type="number" name="bp_dia" placeholder="mmHg" class="border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required>
+        </div>
+        <div class="flex flex-col">
+            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Glucose</label>
+            <input type="number" step="0.1" name="glucose" placeholder="mg/dL" class="border border-gray-200 p-2.5 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required>
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-bold hover:bg-green-700 transition shadow-sm h-[46px]">
+                <i class="fas fa-save mr-2"></i>Save
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white p-4 rounded-lg shadow border border-gray-200 chart-card">
+        <h3 class="text-md font-semibold text-red-600 mb-2 flex items-center justify-between">
+            <span><i class="fas fa-heartbeat mr-2"></i>Heart Rate</span>
+        </h3>
+        <div class="relative h-[250px] w-full">
+            <canvas id="hrChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg shadow border border-gray-200 chart-card">
+        <h3 class="text-md font-semibold text-blue-600 mb-2 flex items-center justify-between">
+            <span><i class="fas fa-arrow-up mr-2"></i>Systolic BP</span>
+        </h3>
+        <div class="relative h-[250px] w-full">
+            <canvas id="bpSysChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg shadow border border-gray-200 chart-card">
+        <h3 class="text-md font-semibold text-green-600 mb-2 flex items-center justify-between">
+            <span><i class="fas fa-arrow-down mr-2"></i>Diastolic BP</span>
+        </h3>
+        <div class="relative h-[250px] w-full">
+            <canvas id="bpDiaChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg shadow border border-gray-200 chart-card">
+        <h3 class="text-md font-semibold text-yellow-600 mb-2 flex items-center justify-between">
+            <span><i class="fas fa-vial mr-2"></i>Glucose Level</span>
+        </h3>
+        <div class="relative h-[250px] w-full">
+            <canvas id="glucoseChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<hr class="my-8 border-gray-200">
+
+<div id="booking-section" class="bg-white rounded-xl shadow-lg border border-indigo-100 overflow-hidden mb-10">
+    <div class="bg-indigo-50 px-6 py-4 border-b border-indigo-100 flex items-center">
+        <i class="fas fa-calendar-alt text-indigo-600 mr-3 text-xl"></i>
+        <h3 class="text-lg font-bold text-indigo-900">Schedule a Consultation</h3>
+    </div>
+    
+    <form action="{{ url_for('book_appointment') }}" method="POST" class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Department</label>
+                <select name="department" required class="w-full border-gray-200 border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <option value="General Practice">General Practice</option>
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Endocrinology">Endocrinology</option>
+                    <option value="Laboratory">Lab Review</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Primary Physician</label>
+                <select name="doctor_id" required class="w-full border-gray-200 border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <option value="" disabled selected>Choose a Doctor...</option>
+                    {% for doctor in doctors %}
+                        <option value="{{ doctor.id }}">Dr. {{ doctor.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Preferred Date</label>
+                <input type="date" name="appointment_date" required class="w-full border-gray-200 border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Time Slot</label>
+                <select name="appointment_time" required class="w-full border-gray-200 border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:30">10:30 AM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="15:30">03:30 PM</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-6">
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Reason (Optional)</label>
+            <textarea name="reason" rows="2" class="w-full border-gray-200 border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Briefly describe your symptoms..."></textarea>
+        </div>
+        <div class="mt-6 flex justify-end">
+            <button type="submit" class="bg-indigo-600 text-white font-bold py-3 px-10 rounded-xl hover:bg-indigo-700 transition shadow-lg">Confirm Request</button>
+        </div>
+    </form>
+</div>
+
+<div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden mb-10">
+    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+        <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide">My Scheduled Consultations</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase">
+                <tr>
+                    <th class="px-6 py-3">Date & Time</th>
+                    <th class="px-6 py-3">Physician</th>
+                    <th class="px-6 py-3">Status</th>
+                    <th class="px-6 py-3 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for appt in appointments %}
+                <tr class="hover:bg-slate-50 transition-colors text-sm">
+                    <td class="px-6 py-4 font-bold text-slate-700">{{ appt.appt_time }}</td>
+                    <td class="px-6 py-4 text-slate-600">Dr. {{ appt.doctor_name }}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded-md text-xs font-bold 
+                            {% if 'Pending' in appt.status %} bg-yellow-100 text-yellow-700 
+                            {% elif 'Confirmed' in appt.status %} bg-green-100 text-green-700 
+                            {% else %} bg-gray-100 text-gray-600 {% endif %}">
+                            {{ appt.status }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        {% if 'Confirmed' in appt.status %}
+                        <a href="{{ url_for('start_consultation', appt_id=appt.appt_id) }}" 
+                           class="inline-flex items-center bg-indigo-600 text-white text-xs px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 transition shadow-sm">
+                            <i class="fas fa-video mr-2"></i> Join Room
+                        </a>
+                        {% else %}
+                        <span class="text-gray-300 text-xs italic">Waiting for Approval</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-6 py-12 text-center text-gray-400">
+                        <i class="fas fa-calendar-times block text-3xl mb-2"></i>
+                        No scheduled appointments.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script id="dashboard-data" type="application/json">
+    {"health_data": {{ health_data | tojson | safe }}, "thresholds": {{ thresholds | tojson | safe }}}
+</script>
+
+<script>
+    const dashboardData = JSON.parse(document.getElementById('dashboard-data').textContent);
+    window.healthData = dashboardData.health_data;
+
+    const rawThresholds = dashboardData.thresholds || {};
+    window.thresholds = {
+        hr_min: rawThresholds.heart_rate_min || 50,
+        hr_max: rawThresholds.heart_rate_max || 100,
+        sys_max: rawThresholds.bp_systolic_max || 140,
+        dia_max: rawThresholds.bp_diastolic_max || 90, 
+        glucose_max: rawThresholds.glucose_max || 180
+    };
+</script>
+
+<script src="{{ url_for('static', filename='js/patient_charts.js') }}" defer></script>
+{% endblock %}

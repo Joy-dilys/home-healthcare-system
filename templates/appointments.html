@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Appointments | HomeHealth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-sans min-h-screen">
+
+    <div class="max-w-6xl mx-auto px-4 py-10">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Clinical Appointments</h1>
+                <p class="text-slate-500 mt-1">Schedule consultations and track upcoming medical reviews.</p>
+            </div>
+            <a href="{{ url_for('staff_dashboard') if current_user.is_authenticated else url_for('patient_dashboard', patient_id=patient_id) }}" 
+               class="inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition shadow-sm">
+                ← Back to Dashboard
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-indigo-600 px-6 py-4">
+                        <h2 class="text-white font-bold flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            Book Appointment
+                        </h2>
+                    </div>
+                    
+                    <form action="{{ url_for('book_appointment', patient_id=patient_id) }}" method="POST" class="p-6 space-y-5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Select Provider</label>
+                            <select name="doctor_id" required class="w-full rounded-lg border-slate-300 bg-slate-50 text-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border">
+                                <option value="">-- Choose Doctor/Staff --</option>
+                                {% for doctor in doctors %}
+                                <option value="{{ doctor.user_id }}">Dr. {{ doctor.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Preferred Date & Time</label>
+                            <input type="datetime-local" name="appt_time" required 
+                                   class="w-full rounded-lg border-slate-300 bg-slate-50 text-sm focus:ring-indigo-500 focus:border-indigo-500 p-2.5 border">
+                        </div>
+
+                        <button type="submit" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 transition transform hover:-translate-y-0.5">
+                            Request Appointment
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                        <h2 class="text-slate-800 font-bold">Appointment History</h2>
+                        <span class="text-xs font-medium text-slate-400">Showing last {{ appointments|length }} entries</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Provider</th>
+                                    <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Schedule</th>
+                                    <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase">Status</th>
+                                    {% if current_user.is_authenticated %}
+                                    <th class="px-6 py-3 text-xs font-bold text-slate-500 uppercase text-right">Action</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                {% if appointments %}
+                                    {% for appt in appointments %}
+                                    <tr class="hover:bg-slate-50 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm font-semibold text-slate-900">Dr. {{ appt.doctor_name }}</div>
+                                            <div class="text-xs text-slate-500">Clinical Staff</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-slate-700">{{ appt.appt_time }}</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            {% if appt.status == 'Confirmed' %}
+                                            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-green-100 text-green-700">✓ Confirmed</span>
+                                            {% elif appt.status == 'Pending' %}
+                                            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-amber-100 text-amber-700">⧖ Pending</span>
+                                            {% else %}
+                                            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 text-slate-600">{{ appt.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        {% if current_user.is_authenticated and appt.status == 'Pending' %}
+                                        <td class="px-6 py-4 text-right">
+                                            <a href="{{ url_for('accept_appointment', appt_id=appt.appt_id) }}" 
+                                               class="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-lg transition">
+                                                Confirm
+                                            </a>
+                                        </td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-10 text-center text-slate-400 text-sm">
+                                            No appointments found. Use the form to book your first visit.
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pharmacy Queue | MedCare</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <nav class="text-sm text-slate-500 mb-2">Clinical Tasks / Pharmacy</nav>
+                <h1 class="text-3xl font-bold text-slate-800 flex items-center">
+                    <span class="bg-indigo-100 text-indigo-600 p-2 rounded-lg mr-4">
+                        <i class="fas fa-pills"></i>
+                    </span>
+                    Dispensing Queue
+                </h1>
+            </div>
+            <div class="text-right">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Queue Status</span>
+                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-200">
+                    <i class="fas fa-circle text-[8px] mr-1 align-middle"></i> Live Updates Active
+                </span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-slate-500 text-xs font-bold uppercase">Pending Orders</p>
+                <p class="text-2xl font-black text-slate-800">{{ patients|length }}</p>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-slate-500 text-xs font-bold uppercase">Average Wait</p>
+                <p class="text-2xl font-black text-slate-800">12 Mins</p>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-slate-500 text-xs font-bold uppercase">Station ID</p>
+                <p class="text-2xl font-black text-indigo-600">PHARM-01</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200">
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-wider">Patient Information</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-wider">Clinical Notes & Rx</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-wider text-right">Fulfillment</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for patient in patients %}
+                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                        <td class="px-6 py-5">
+                            <div class="flex items-center">
+                                <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold mr-4 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition">
+                                    {{ patient.name[0] }}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-800">{{ patient.name }}</p>
+                                    <p class="text-xs text-slate-500">ID: #00{{ patient.patient_id }}</p>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-5">
+                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-700 italic relative">
+                                <i class="fas fa-quote-left text-slate-200 absolute top-2 left-2 text-xs"></i>
+                                <span class="pl-4">{{ patient.pharmacy_notes or 'No specific notes provided.' }}</span>
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-5 text-right">
+                            <form action="{{ url_for('release_patient', patient_id=patient.patient_id) }}" method="POST">
+                                <button type="submit" class="inline-flex items-center bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    Dispense & Discharge
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="p-20 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="bg-slate-100 h-16 w-16 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-inbox text-slate-300 text-2xl"></i>
+                                </div>
+                                <h3 class="text-slate-800 font-bold text-lg">Queue Clear</h3>
+                                <p class="text-slate-500 text-sm">There are no pending prescriptions at this time.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                <span>Secure Pharmacy Portal v2.0</span>
+                <span>Authorized Staff Only</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

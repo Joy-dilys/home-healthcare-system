@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Consultation - {{ appt.patient_name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 p-6 text-white h-screen">
+    <div class="max-w-5xl mx-auto h-full flex flex-col">
+        <header class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-xl font-bold">Telemedicine: {{ appt.patient_name }}</h1>
+                <p class="text-slate-400 text-xs uppercase tracking-widest">Encrypted Peer-to-Peer Session</p>
+            </div>
+            <button id="closeBtn" class="bg-slate-800 hover:bg-red-600 p-2 rounded-lg transition">
+                <i class="fas fa-times px-2"></i>
+            </button>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
+            <div class="relative bg-black rounded-2xl overflow-hidden border-2 border-slate-700 shadow-2xl">
+                <video id="remoteVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+                <div class="absolute bottom-4 left-4 bg-indigo-600/80 backdrop-blur-md px-3 py-1 rounded text-xs font-bold">Remote Participant</div>
+            </div>
+
+            <div class="relative bg-black rounded-2xl overflow-hidden border-2 border-slate-700 shadow-2xl">
+                <video id="localVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
+                <div class="absolute bottom-4 left-4 bg-slate-800/80 backdrop-blur-md px-3 py-1 rounded text-xs font-bold">Your Camera (Local)</div>
+            </div>
+        </div>
+
+        <div class="mt-8 flex justify-center gap-6 pb-4">
+            <button id="startCall" class="bg-emerald-600 hover:bg-emerald-500 px-8 py-3 rounded-full font-bold shadow-lg transition transform hover:scale-105">
+                <i class="fas fa-video mr-2"></i> Initialize Call
+            </button>
+            <button id="endCall" class="bg-slate-700 hover:bg-red-600 px-8 py-3 rounded-full font-bold transition">
+                <i class="fas fa-phone-slash mr-2"></i> Hang Up
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        const room = "room_{{ appt['appt_id'] }}";
+        const exitUrl = "{{ url_for('manage_appointments') if session['role'] != 'Patient' else url_for('patient_dashboard', patient_id=session['patient_id']) }}";
+        
+        let localStream;
+        let peerConnection;
+        const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
+        // 1. Setup Camera & Mic
+        async function init() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('localVideo').srcObject = localStream;
+                socket.emit('join', { room: room });
+            } catch (err) {
+                console.error("Access denied for camera/mic:", err);
+                alert("Please enable camera and microphone access to join the consultation.");
+            }
+        }
+
+        // 2. WebRTC Peer Connection Setup
+        async function createPeerConnection() {
+            peerConnection = new RTCPeerConnection(config);
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            
+            peerConnection.ontrack = (e) => {
+                document.getElementById('remoteVideo').srcObject = e.streams[0];
+            };
+
+            peerConnection.onicecandidate = (e) => {
+                if (e.candidate) socket.emit('signal', { room: room, type: 'candidate', candidate: e.candidate });
+            };
+        }
+
+        // 3. Signaling Listeners
+        socket.on('signal', async (data) => {
+            if (!peerConnection) await createPeerConnection();
+            
+            if (data.type === 'offer') {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                socket.emit('signal', { room: room, type: 'answer', answer: answer });
+            } else if (data.type === 'answer') {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            } else if (data.type === 'candidate') {
+                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            }
+        });
+
+        // 4. Leave/Hangup Logic
+        function leaveConsultation() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            window.location.href = exitUrl;
+        }
+
+        // 5. Button Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const startBtn = document.getElementById('startCall');
+            const endBtn = document.getElementById('endCall');
+            const closeBtn = document.getElementById('closeBtn');
+
+            if (startBtn) {
+                startBtn.onclick = async () => {
+                    await createPeerConnection();
+                    const offer = await peerConnection.createOffer();
+                    await peerConnection.setLocalDescription(offer);
+                    socket.emit('signal', { room: room, type: 'offer', offer: offer });
+                    
+                    startBtn.innerText = "Call in Progress...";
+                    startBtn.disabled = true;
+                    startBtn.classList.replace('bg-emerald-600', 'bg-slate-600');
+                };
+            }
+
+            if (endBtn) endBtn.onclick = leaveConsultation;
+            if (closeBtn) closeBtn.onclick = leaveConsultation;
+        });
+
+        init(); 
+    </script>
+</body>
+</html>

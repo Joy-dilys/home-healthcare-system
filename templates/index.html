@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fali Health | Integrated Remote Patient Monitoring</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hero-gradient { background: radial-gradient(circle at top right, #eef2ff 0%, #ffffff 100%); }
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        .animate-pulse-soft { animation: pulse-soft 3s infinite; }
+    </style>
+</head>
+<body class="min-h-screen bg-white text-slate-900">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="fixed top-24 right-6 z-[100] space-y-4">
+          {% for category, message in messages %}
+            <div class="px-6 py-4 rounded-2xl shadow-2xl bg-white border-l-4 flex items-center space-x-3 animate-bounce
+                 {% if category == 'success' %} border-green-500 {% else %} border-red-500 {% endif %}">
+              <span class="text-2xl">{% if category == 'success' %}✅{% else %}⚠️{% endif %}</span>
+              <p class="font-bold text-slate-900">{{ message }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="bg-indigo-900 text-white py-2 text-center text-xs font-semibold tracking-wide uppercase">
+        🚀 System Update: Real-time Vital Syncing is now active for all RPM patients.
+    </div>
+
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <div class="container mx-auto px-6 flex justify-between items-center h-20">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-200">
+                    <span class="text-white font-black text-xl">F</span>
+                </div>
+                <span class="text-2xl font-extrabold tracking-tight text-slate-900">Fali<span class="text-indigo-600">Health</span></span>
+            </div>
+            
+            <nav class="hidden lg:flex items-center space-x-8 text-sm font-semibold text-slate-600">
+                <div class="relative group">
+                    <button class="flex items-center hover:text-indigo-600 transition-colors">
+                        Services
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="absolute left-0 mt-2 w-64 bg-white border border-slate-100 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                        <div class="p-2 space-y-1">
+                            <a href="{{ url_for('service_detail', service_slug='home-nursing') }}" class="block px-4 py-2 text-sm hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">Home Nursing Care Services</a>
+                            <a href="{{ url_for('service_detail', service_slug='therapy') }}" class="block px-4 py-2 text-sm hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">Therapy Services</a>
+                            <a href="{{ url_for('service_detail', service_slug='diet-planning') }}" class="block px-4 py-2 text-sm hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">Diet Planning & Nutrition</a>
+                            <a href="{{ url_for('service_detail', service_slug='counselling') }}" class="block px-4 py-2 text-sm hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">Counselling Services</a>
+                            <a href="{{ url_for('service_detail', service_slug='equipment-training') }}" class="block px-4 py-2 text-sm hover:bg-indigo-50 hover:text-indigo-600 rounded-lg">Equipment & Training</a>
+                        </div>
+                    </div>
+                </div>
+                <a href="#overview" class="hover:text-indigo-600 transition-colors">Hospital</a>
+                <a href="#staff" class="hover:text-indigo-600 transition-colors">Medical Staff</a>
+                <a href="#faqs" class="hover:text-indigo-600 transition-colors">FAQs</a>
+                <a href="#contact" class="hover:text-indigo-600 transition-colors">Contact</a>
+                <span class="h-6 w-px bg-slate-200"></span>
+                <a href="{{ url_for('staff_login') }}" class="text-indigo-600 hover:text-indigo-700">Staff Portal</a>
+            </nav>
+            
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('patient_login') }}" class="hidden sm:block px-6 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-full hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">
+                    Patient Portal
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section id="overview" class="hero-gradient pt-20 pb-32 overflow-hidden">
+        <div class="container mx-auto px-6 text-center">
+            <span class="inline-block px-4 py-1.5 mb-6 text-indigo-600 bg-indigo-50 rounded-full text-sm font-bold tracking-wide uppercase">
+                Next-Gen Healthcare Management
+            </span>
+            <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 leading-tight tracking-tighter">
+                Care that follows you <br><span class="text-indigo-600">wherever you go.</span>
+            </h1>
+            <p class="text-xl text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Fali Health integrates advanced clinical hospital management with seamless Remote Patient Monitoring (RPM) to ensure your safety 24/7.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="{{ url_for('patient_login') }}" class="px-8 py-4 bg-indigo-600 text-white text-lg font-bold rounded-2xl shadow-2xl shadow-indigo-200 hover:bg-indigo-700 transition-all transform hover:-translate-y-1">
+                    Access My Dashboard
+                </a>
+                <button onclick="openModal()" class="px-8 py-4 bg-white text-slate-700 text-lg font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all">
+                    Watch Demo Video
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="container mx-auto px-6 -mt-20 relative z-30">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-50">
+                <p class="text-slate-400 text-sm font-bold uppercase mb-1">Active RPM Users</p>
+                <h4 class="text-4xl font-black text-slate-900">2,400+</h4>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-50">
+                <p class="text-slate-400 text-sm font-bold uppercase mb-1">Critical Response</p>
+                <h4 class="text-4xl font-black text-indigo-600">&lt; 2 min</h4>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-50">
+                <p class="text-slate-400 text-sm font-bold uppercase mb-1">Hospital Beds</p>
+                <h4 class="text-4xl font-black text-slate-900">75+</h4>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-50">
+                <p class="text-slate-400 text-sm font-bold uppercase mb-1">Success Rate</p>
+                <h4 class="text-4xl font-black text-green-500">99.8%</h4>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="py-24 bg-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-extrabold text-slate-900 mb-16 tracking-tight">The Fali Health Journey</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+                <div class="hidden md:block absolute top-1/4 left-0 w-full h-0.5 bg-slate-100 -z-10"></div>
+                <div class="space-y-6">
+                    <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center mx-auto text-2xl font-bold shadow-xl shadow-indigo-200 ring-8 ring-indigo-50">1</div>
+                    <h3 class="text-xl font-bold">Smart Device Sync</h3>
+                    <p class="text-slate-500">We ship pre-configured biometric devices to your door. Simply turn them on, and they instantly connect via secure REST APIs.</p>
+                </div>
+                <div class="space-y-6">
+                    <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center mx-auto text-2xl font-bold shadow-xl shadow-indigo-200 ring-8 ring-indigo-50">2</div>
+                    <h3 class="text-xl font-bold">24/7 AI Analysis</h3>
+                    <p class="text-slate-500">Your vitals—heart rate, glucose, and BP—are analyzed in real-time. Our system flags any deviations immediately.</p>
+                </div>
+                <div class="space-y-6">
+                    <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center mx-auto text-2xl font-bold shadow-xl shadow-indigo-200 ring-8 ring-indigo-50">3</div>
+                    <h3 class="text-xl font-bold">Clinical Intervention</h3>
+                    <p class="text-slate-500">If a critical alert is triggered, our 24/7 medical staff is notified to contact you or dispatch emergency services.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="py-24 bg-white overflow-hidden">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col lg:flex-row items-center gap-16">
+                <div class="lg:w-1/2 relative">
+                    <div class="relative z-10 rounded-3xl overflow-hidden shadow-2xl transform -rotate-2 hover:rotate-0 transition-transform duration-500">
+                        <img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800" alt="Medical Technology" class="w-full h-[500px] object-cover">
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 w-64 h-64 bg-indigo-600 rounded-3xl -z-10 opacity-10"></div>
+                </div>
+                <div class="lg:w-1/2 space-y-8">
+                    <h2 class="text-indigo-600 font-bold tracking-widest uppercase text-sm mb-3">Our Mission</h2>
+                    <h3 class="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">Bridging the gap between <span class="text-indigo-600">Clinic and Home.</span></h3>
+                    <p class="text-lg text-slate-600 leading-relaxed">Fali Health was founded on a simple premise: healthcare shouldn't stop when you leave the hospital. We specialize in Integrated RPM, using secure APIs to sync real-time vitals.</p>
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-4">
+                            <div class="mt-1 bg-indigo-100 p-2 rounded-lg text-indigo-600">✓</div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Real-Time Data Integrity</h4>
+                                <p class="text-slate-500 text-sm">Ensuring 99.8% accuracy in vital sign syncing via encrypted hardware.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="py-24 bg-slate-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-extrabold text-slate-900 mb-4">Home Based Care</h2>
+                <p class="text-slate-500">Comprehensive clinical support delivered to your doorstep.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <a href="{{ url_for('service_detail', service_slug='home-nursing') }}" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-500 transition-all group">
+                    <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center mb-6 group-hover:bg-indigo-600 group-hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Home Nursing Care</h4>
+                    <p class="text-slate-500 text-sm mb-4">Professional nursing staff available for wound care and post-op recovery.</p>
+                    <span class="text-indigo-600 font-bold">Learn More →</span>
+                </a>
+
+                <a href="{{ url_for('service_detail', service_slug='therapy') }}" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-500 transition-all group">
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-6 group-hover:bg-indigo-600 group-hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Therapy Services</h4>
+                    <p class="text-slate-500 text-sm mb-4">Physiotherapy and occupational therapy designed to improve mobility.</p>
+                    <span class="text-indigo-600 font-bold">Learn More →</span>
+                </a>
+
+                <a href="{{ url_for('service_detail', service_slug='diet-planning') }}" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-500 transition-all group">
+                    <div class="w-12 h-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mb-6 group-hover:bg-indigo-600 group-hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M12 14v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Diet & Nutrition</h4>
+                    <p class="text-slate-500 text-sm mb-4">Custom meal planning and consultations integrated with clinical data.</p>
+                    <span class="text-indigo-600 font-bold">Learn More →</span>
+                </a>
+
+                <a href="{{ url_for('service_detail', service_slug='counselling') }}" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-500 transition-all group">
+                    <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center mb-6 group-hover:bg-indigo-600 group-hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Counselling Services</h4>
+                    <p class="text-slate-500 text-sm mb-4">Mental health support and family counseling for chronic conditions.</p>
+                    <span class="text-indigo-600 font-bold">Learn More →</span>
+                </a>
+
+                <a href="{{ url_for('service_detail', service_slug='equipment-training') }}" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-500 transition-all group">
+                    <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mb-6 group-hover:bg-indigo-600 group-hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 3v2m6-2v2M9 19v2m6-2v2"></path></svg>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Medical Equipment</h4>
+                    <p class="text-slate-500 text-sm mb-4">Provision of RPM devices, beds, and oxygen concentrators for home.</p>
+                    <span class="text-indigo-600 font-bold">Learn More →</span>
+                </a>
+
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm group">
+                    <div class="w-12 h-12 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13"></path></svg>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3">Caregiver Training</h4>
+                    <p class="text-slate-500 text-sm">Specialized training for family members on how to use monitoring equipment.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="staff" class="py-24 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+                <div class="max-w-xl">
+                    <h2 class="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">World-Class Specialists</h2>
+                    <p class="text-lg text-slate-500">Our multidisciplinary team includes award-winning physicians.</p>
+                </div>
+                <a href="#" class="text-indigo-600 font-bold border-b-2 border-indigo-600 pb-1">View All Directory &rarr;</a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                <div class="group">
+                    <div class="aspect-square bg-slate-100 rounded-3xl mb-6 overflow-hidden shadow-inner">
+                        <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=400" alt="Doctor" class="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500">
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900">Dr. Sarah Chen</h4>
+                    <p class="text-indigo-600 font-medium">Lead Cardiologist</p>
+                </div>
+                <div class="group">
+                    <div class="aspect-square bg-slate-100 rounded-3xl mb-6 overflow-hidden shadow-inner">
+                        <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=400" alt="Nurse" class="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500">
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900">Nurse James Wilson</h4>
+                    <p class="text-indigo-600 font-medium">RPM Supervisor</p>
+                </div>
+                <div class="group">
+                    <div class="aspect-square bg-slate-100 rounded-3xl mb-6 overflow-hidden shadow-inner">
+                        <img src="https://images.unsplash.com/photo-1559839734-2b71f1536b1e?auto=format&fit=crop&q=80&w=400" alt="Doctor" class="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500">
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900">Dr. Elena Rodriguez</h4>
+                    <p class="text-indigo-600 font-medium">Chief Gynecologist</p>
+                </div>
+                <div class="group">
+                    <div class="aspect-square bg-slate-100 rounded-3xl mb-6 overflow-hidden shadow-inner">
+                        <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=400" alt="Specialist" class="object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-500">
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900">Dr. Michael Abdi</h4>
+                    <p class="text-indigo-600 font-medium">Diagnostics Lead</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact" class="bg-slate-900 pt-24 pb-12 text-white">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 mb-20">
+                <div>
+                    <h2 class="text-4xl font-extrabold mb-8 tracking-tight">Get in touch with <br>our health experts.</h2>
+                    <div class="space-y-6">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-lg font-medium">+254 792 897 610</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-lg font-medium">emergency@falihealth.com</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form action="{{ url_for('contact_submit') }}" method="POST" class="bg-white p-10 rounded-3xl space-y-4 shadow-2xl">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" name="name" required placeholder="Full Name" class="bg-slate-50 border-none rounded-xl p-4 text-slate-900 focus:ring-2 focus:ring-indigo-600 outline-none">
+                        <input type="email" name="email" required placeholder="Email Address" class="bg-slate-50 border-none rounded-xl p-4 text-slate-900 focus:ring-2 focus:ring-indigo-600 outline-none">
+                    </div>
+                    <textarea name="message" rows="4" required placeholder="How can we help?" class="w-full bg-slate-50 border-none rounded-xl p-4 text-slate-900 focus:ring-2 focus:ring-indigo-600 outline-none"></textarea>
+                    <button type="submit" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all">
+                        Send Message
+                    </button>
+                </form>
+            </div>
+            <div class="border-t border-slate-800 pt-12 flex flex-col md:flex-row justify-between items-center text-slate-500 text-sm">
+                <p>&copy; 2026 Fali Health Monitoring Center. All rights reserved.</p>
+                <div class="flex space-x-8 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="videoModal" class="fixed inset-0 z-[100] hidden bg-black/90 flex items-center justify-center p-4">
+        <div class="relative w-full max-w-4xl">
+            <button onclick="closeModal()" class="absolute -top-12 right-0 text-white text-xl font-bold hover:text-indigo-400">✕ Close</button>
+            <div class="aspect-video bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10">
+                <video id="demoVideo" controls class="w-full h-full">
+                    <source src="https://player.vimeo.com/external/434045526.sd.mp4?s=c27dc369970503274945d9e4a36e525f0e97262f&profile_id=164" type="video/mp4">
+                </video>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            const modal = document.getElementById('videoModal');
+            const demoVideo = document.getElementById('demoVideo');
+            modal.classList.remove('hidden');
+            demoVideo.play();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('videoModal');
+            const demoVideo = document.getElementById('demoVideo');
+            modal.classList.add('hidden');
+            demoVideo.pause();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") closeModal();
+        });
+    </script>
+</body>
+</html>

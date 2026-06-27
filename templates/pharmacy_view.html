@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pharmacy Dispensing | MedCare</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 p-8">
+    <div class="max-w-5xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Pharmacy Queue</h1>
+            <span class="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-bold">
+                {{ patients|length }} Pending Prescriptions
+            </span>
+        </div>
+
+        {% if patients %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for patient in patients %}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                <div class="p-6 flex-1">
+                    <div class="flex justify-between items-start mb-4">
+                        <h2 class="text-xl font-bold text-slate-900">{{ patient.name }}</h2>
+                        <span class="text-xs font-mono bg-slate-100 px-2 py-1 rounded">ID: #{{ patient.patient_id }}</span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="text-[10px] font-bold text-indigo-600 uppercase">Doctor's Clinical Plan</label>
+                        <p class="text-sm text-slate-600 italic mt-1">{{ patient.treatment_plan or 'No plan recorded' }}</p>
+                    </div>
+
+                    <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-lg">
+                        <label class="text-[10px] font-bold text-indigo-700 uppercase">Prescription / Pharmacy Notes</label>
+                        <p class="text-sm font-semibold text-slate-800 mt-1">{{ patient.pharmacy_notes or 'No specific medication notes' }}</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 border-t">
+                    <form action="{{ url_for('release_patient', patient_id=patient.patient_id) }}" method="POST">
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-md transition transform active:scale-95 flex items-center justify-center">
+                            <i class="fas fa-prescription-bottle-alt mr-2"></i>
+                            Dispense & Discharge
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-300">
+            <i class="fas fa-check-circle text-slate-200 text-6xl mb-4"></i>
+            <p class="text-slate-500 font-medium">No pending prescriptions in the queue.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

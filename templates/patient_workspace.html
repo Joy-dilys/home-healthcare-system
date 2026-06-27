@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clinical Workspace | {{ patient.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 p-6 min-h-screen">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-t-xl p-6 border-b flex justify-between items-center shadow-sm">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">{{ patient.name }}</h1>
+                <p class="text-sm text-slate-500">
+                    Patient ID: #{{ patient.patient_id }} | 
+                    Status: <span class="font-bold {% if patient.lifeline_status == 1 %}text-red-600 animate-pulse{% else %}text-green-600{% endif %}">
+                        {{ 'CRITICAL' if patient.lifeline_status == 1 else 'STABLE' }}
+                    </span> | 
+                    Workflow: <span class="text-indigo-600 font-bold uppercase text-xs tracking-wider border border-indigo-200 px-2 py-0.5 rounded bg-indigo-50">{{ patient.clinical_status }}</span>
+                </p>
+            </div>
+            <a href="{{ url_for('staff_dashboard') }}" class="text-slate-400 hover:text-slate-600 text-sm font-medium">
+                <i class="fas fa-times-circle mr-1"></i> Close Workspace
+            </a>
+        </div>
+
+        <div class="bg-white flex border-b px-6 space-x-8">
+            <button onclick="showTab('analysis')" id="btn-analysis" class="py-4 border-b-2 font-bold transition-all">Clinical Assessment</button>
+            <button onclick="showTab('decision')" id="btn-decision" class="py-4 border-b-2 font-bold transition-all">Action & Disposition</button>
+        </div>
+
+        <div class="bg-white p-8 rounded-b-xl shadow-lg">
+            
+            <div id="tab-analysis" class="space-y-6">
+                <form action="{{ url_for('doctor_analysis_page', patient_id=patient.patient_id) }}" method="POST" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Subjective Primary Symptom</label>
+                            <select name="symptoms" class="w-full border rounded-lg p-3 bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="Asymptomatic" {% if patient.symptoms == 'Asymptomatic' %}selected{% endif %}>Asymptomatic (Routine)</option>
+                                <option value="Chest Pain" {% if patient.symptoms == 'Chest Pain' %}selected{% endif %}>Chest Pain / Angina</option>
+                                <option value="Shortness of Breath" {% if patient.symptoms == 'Shortness of Breath' %}selected{% endif %}>Shortness of Breath</option>
+                                <option value="Dizziness" {% if patient.symptoms == 'Dizziness' %}selected{% endif %}>Dizziness / Syncope</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Internal Lab Interpretation</label>
+                            <textarea name="test_interpretation" rows="1" class="w-full border rounded-lg p-3 bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="Comment on findings...">{{ patient.test_interpretation }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-100">
+                        <label class="block text-[10px] font-bold text-indigo-700 uppercase mb-2">Confirmed Medical Diagnosis</label>
+                        <select name="last_diagnosis_summary" class="w-full border-none bg-white rounded-lg p-3 shadow-sm font-semibold text-slate-800">
+                            <option value="Stable" {% if patient.last_diagnosis_summary == 'Stable' %}selected{% endif %}>Stable / No Acute Findings</option>
+                            <option value="Hypertension" {% if patient.last_diagnosis_summary == 'Hypertension' %}selected{% endif %}>Essential Hypertension</option>
+                            <option value="Diabetes" {% if patient.last_diagnosis_summary == 'Diabetes' %}selected{% endif %}>Type 2 Diabetes Mellitus</option>
+                            <option value="Arrhythmia" {% if patient.last_diagnosis_summary == 'Arrhythmia' %}selected{% endif %}>Cardiac Arrhythmia</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-indigo-700 transition shadow-lg flex items-center">
+                        <i class="fas fa-arrow-right mr-2"></i> Save & Continue to Disposition
+                    </button>
+                </form>
+            </div>
+
+            <div id="tab-decision" class="hidden space-y-6">
+                <form action="{{ url_for('surgery_decision_page', patient_id=patient.patient_id) }}" method="POST" class="space-y-6">
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center">
+                            <i class="fas fa-file-invoice-dollar mr-3 text-rose-600"></i> Final Disposition & Billing
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Patient Pathway</label>
+                                <select name="decision_type" class="w-full border-2 border-white rounded-xl p-4 bg-white shadow-md outline-none focus:ring-2 focus:ring-rose-500 font-bold text-slate-700">
+                                    <option value="Monitoring">Continue Remote Monitoring</option>
+                                    <option value="In Lab">Order Laboratory Tests</option>
+                                    <option value="Sent to Pharmacy">Send to Pharmacy</option>
+                                    <option value="Admitted">Immediate Admission</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Medical Service / Pharmacy Bill</label>
+                                <select name="billable_item" class="w-full border-2 border-white rounded-xl p-4 bg-white shadow-md outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-slate-700">
+                                    <optgroup label="Pharmacy / Medicines">
+                                        <option value="Amlodipine 5mg - $15.00">Amlodipine (BP) - $15.00</option>
+                                        <option value="Metformin 500mg - $22.50">Metformin (Diabetes) - $22.50</option>
+                                        <option value="Atorvastatin 10mg - $35.00">Atorvastatin - $35.00</option>
+                                        <option value="Salbutamol Inhaler - $45.00">Salbutamol Inhaler - $45.00</option>
+                                    </optgroup>
+                                    <optgroup label="Lab & Diagnostics">
+                                        <option value="Full Blood Count - $50.00">Full Blood Count - $50.00</option>
+                                        <option value="Lipid Profile - $75.00">Lipid Profile - $75.00</option>
+                                        <option value="HbA1c Diabetes Test - $60.00">HbA1c Diabetes Test - $60.00</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Prescription Notes</label>
+                                <textarea name="pharmacy_notes" rows="4" class="w-full border rounded-xl p-4 bg-white shadow-sm outline-none" placeholder="Dosage, frequency, duration...">{{ patient.pharmacy_notes }}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Clinical Justification</label>
+                                <textarea name="justification" rows="4" class="w-full border rounded-xl p-4 bg-white shadow-sm outline-none" placeholder="Reasoning for this decision...">{{ patient.decision_justification }}</textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="mt-8 w-full bg-rose-600 text-white font-bold py-4 rounded-xl hover:bg-rose-700 transition shadow-lg uppercase tracking-widest flex items-center justify-center">
+                            <i class="fas fa-check-double mr-2"></i> Finalize Case & Generate Invoice
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            document.getElementById('tab-analysis').classList.add('hidden');
+            document.getElementById('tab-decision').classList.add('hidden');
+            
+            // Reset button styles
+            const btnAnal = document.getElementById('btn-analysis');
+            const btnDeci = document.getElementById('btn-decision');
+            
+            btnAnal.className = 'py-4 border-b-2 border-transparent text-slate-400 font-bold transition-all';
+            btnDeci.className = 'py-4 border-b-2 border-transparent text-slate-400 font-bold transition-all';
+
+            // Show selected tab
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            
+            // Set active button style
+            const activeBtn = document.getElementById('btn-' + tabName);
+            activeBtn.className = 'py-4 border-b-2 border-indigo-600 text-indigo-600 font-bold transition-all';
+        }
+
+        // AUTO-SWITCH LOGIC ON LOAD
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const activeTab = urlParams.get('tab') || 'analysis';
+            showTab(activeTab);
+        };
+    </script>
+</body>
+</html>

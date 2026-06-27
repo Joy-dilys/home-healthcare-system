@@ -1,0 +1,3 @@
+Flask
+Flask-SQLAlchemy # Or Flask-SQLAlchemy and PyMySQL for an ORM approach
+python-dotenv # Recommended for managing secure database credentials
