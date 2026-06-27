@@ -1070,7 +1070,13 @@ def diagnose_patient(patient_id):
 
 
 
+# if __name__ == '__main__':
+#     # NOTE: Database setup is now handled via the 'flask init-db' command!
+#     # Remove the 'create_tables()' call here.
+#     app.run(debug=True)
+
 if __name__ == '__main__':
-    # NOTE: Database setup is now handled via the 'flask init-db' command!
-    # Remove the 'create_tables()' call here.
-    app.run(debug=True)
+    # Render provides a PORT environment variable, default to 5000 locally
+    port = int(os.environ.get("PORT", 5000))
+    # host="0.0.0.0" tells Flask to accept connections from outside
+    app.run(host="0.0.0.0", port=port)
